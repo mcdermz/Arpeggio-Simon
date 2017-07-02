@@ -6,16 +6,19 @@ let toneObject = {
   4 : '#b1',
   5 : '#c8',
 }
+window.AudioContext = window.AudioContext||window.webkitAudioContext;
+let context = new AudioContext();
+let osc = context.createOscillator();
+let gainNode = context.createGain();
+osc.connect(gainNode);
+osc.start()
+
+
 
 function playTone (toneID) {
-  if (toneID)
-    $(toneID)[0].play();
+  gainNode.connect(context.destination)
 }
 
 function stopTone (toneID) {
-  if (toneID){
-    $(toneID)[0].animate({volume: 0}, 100);
-    setTimeout(function () {$(toneID)[0].pause()},100);
-    setTimeout(function () {$(toneID)[0].currentTime = 0},101)
-  }
+  gainNode.disconnect(context.destination);
 }
