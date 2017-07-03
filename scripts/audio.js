@@ -33,12 +33,10 @@ osc.start()
 
 
 
-function playTone (toneID) {
-  if (toneID) {
-    osc.frequency.value = oscList[oscList.length - 1]
-    muted = false
-    gainNode.connect(context.destination)
-  }
+function playTone () {
+  osc.frequency.value = oscList[oscList.length - 1]
+  muted = false
+  gainNode.connect(context.destination)
 }
 
 function stopTone () {

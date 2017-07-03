@@ -35,6 +35,7 @@ let keyAction = {
 };
 
 let oscList = []
+let oscActive = {}
 
 function startButton() {
   reset();
@@ -63,13 +64,21 @@ function hintButton() {
 
 function startBoxAction($box) {
   const tone = toneObject[$box.attr('id')]
-  oscList.push(tone)
-  playTone(tone);
+  if (tone && !oscActive[tone]){
+    oscActive[tone] = true
+    oscList.push(tone)
+    playTone(tone)
+  }
   $box.addClass('lighten-5 clicked');
 }
 
 function endBoxAction($box) {
-  oscList.pop()
+  const tone = toneObject[$box.attr('id')]
+  if (oscActive[tone]) {
+    let idx = oscList.indexOf(tone)
+    delete oscActive[tone]
+    oscList.splice(idx, 1)
+  }
   $box.removeClass('lighten-5 clicked');
   stopTone();
 }
