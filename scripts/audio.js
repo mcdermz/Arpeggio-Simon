@@ -26,6 +26,8 @@ let context = new AudioContext()
 let osc = context.createOscillator()
 let gainNode = context.createGain()
 let muted = true
+let oscList = []
+let oscActive = {}
 
 
 osc.connect(gainNode)
@@ -33,18 +35,29 @@ osc.start()
 
 
 
-function playTone () {
-  osc.frequency.value = oscList[oscList.length - 1]
-  muted = false
-  gainNode.connect(context.destination)
+function playTone (tone) {
+  if (tone && !oscActive[tone]){
+    oscActive[tone] = true
+    oscList.push(tone)
+    osc.frequency.value = oscList[oscList.length - 1]
+    muted = false
+    gainNode.connect(context.destination)
+  }
 }
 
-function stopTone () {
-  if (oscList.length === 0) {
-    muted = true
-    gainNode.disconnect(context.destination)
-  }
-  else {
-    osc.frequency.value = oscList[oscList.length - 1]
+function stopTone (tone) {
+  if (oscActive[tone]) {
+    let idx = oscList.indexOf(tone)
+    delete oscActive[tone]
+    oscList.splice(idx, 1)
+    if (oscList.length === 0) {
+      muted = true
+      gainNode.disconnect(context.destination)
+    }
+    else {
+      gainNode.disconnect(context.destination)
+      osc.frequency.value = oscList[oscList.length - 1]
+      gainNode.connect(context.destination)
+    }
   }
 }
