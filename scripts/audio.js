@@ -22,52 +22,80 @@ let toneObject = {
   5 : (261.625565300598634 * 2),
 }
 
+/*************************/
+/* MONOSYNTH CONFIG */
+/*************************/
 window.AudioContext = window.AudioContext||window.webkitAudioContext
 let context = new AudioContext()
-// let osc = context.createOscillator()
+let osc = context.createOscillator()
 let gainNode = context.createGain()
 let muted = true
-// let oscList = []
+let oscList = []
 let oscActive = {}
 
 gainNode.connect(context.destination)
-// osc.connect(gainNode)
-// osc.start()
-
-
+osc.start()
 
 function playTone (tone) {
   if (tone && !oscActive[tone]){
-    // oscActive[tone] = true
-    // oscList.push(tone)
-    oscActive[tone] = context.createOscillator()
-    let osc = oscActive[tone]
-    // osc.frequency.value = oscList[oscList.length - 1]
+    oscActive[tone] = true
+    oscList.push(tone)
+    osc.frequency.value = oscList[oscList.length - 1]
     osc.frequency.value = tone
     muted = false
-    // gainNode.connect(context.destination)
-    // osc.connect(gainNode)
+    gainNode.connect(context.destination)
     osc.connect(gainNode)
-    osc.start()
-  }
-  else if (tone && oscActive[tone]){
-    oscActive[tone].connect(gainNode)
   }
 }
 
 function stopTone (tone) {
   if (oscActive[tone]) {
-    oscActive[tone].disconnect(gainNode)
-    // delete oscActive[tone]
-    // let idx = oscList.indexOf(tone)
-    // oscList.splice(idx, 1)
-    // if (oscList.length === 0) {
-    //   muted = true
-    //   gainNode.disconnect(context.destination)
-    //   osc.disconnect(gainNode)
-    // }
-    // else {
-    //   osc.frequency.value = oscList[oscList.length - 1]
-    // }
+    delete oscActive[tone]
+    let idx = oscList.indexOf(tone)
+    oscList.splice(idx, 1)
+    if (oscList.length === 0) {
+      muted = true
+      gainNode.disconnect(context.destination)
+      osc.disconnect(gainNode)
+    }
+    else {
+      osc.frequency.value = oscList[oscList.length - 1]
+    }
   }
 }
+/* END MONOSYNTH CONFIG */
+
+
+/*************************/
+/* HARMONIC SYNTH CONFIG */
+/*************************/
+
+// window.AudioContext = window.AudioContext||window.webkitAudioContext
+// let context = new AudioContext()
+// let gainNode = context.createGain()
+// let muted = true
+// let oscActive = {}
+//
+// gainNode.connect(context.destination)
+//
+// function playTone (tone) {
+//   if (tone && !oscActive[tone]){
+//     oscActive[tone] = context.createOscillator()
+//     let osc = oscActive[tone]
+//     osc.frequency.value = tone
+//     muted = false
+//     osc.connect(gainNode)
+//     osc.start()
+//   }
+//   else if (tone && oscActive[tone]){
+//     oscActive[tone].connect(gainNode)
+//   }
+// }
+//
+// function stopTone (tone) {
+//   if (oscActive[tone]) {
+//     oscActive[tone].disconnect(gainNode)
+//   }
+// }
+
+/* END HARMONIC SYNTH CONFIG */
