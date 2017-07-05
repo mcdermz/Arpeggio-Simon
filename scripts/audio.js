@@ -21,43 +21,53 @@ let toneObject = {
   4 : 493.883301256124111,
   5 : (261.625565300598634 * 2),
 }
+
 window.AudioContext = window.AudioContext||window.webkitAudioContext
 let context = new AudioContext()
-let osc = context.createOscillator()
+// let osc = context.createOscillator()
 let gainNode = context.createGain()
 let muted = true
-let oscList = []
+// let oscList = []
 let oscActive = {}
 
-
-osc.connect(gainNode)
-osc.start()
+gainNode.connect(context.destination)
+// osc.connect(gainNode)
+// osc.start()
 
 
 
 function playTone (tone) {
   if (tone && !oscActive[tone]){
-    oscActive[tone] = true
-    oscList.push(tone)
-    osc.frequency.value = oscList[oscList.length - 1]
+    // oscActive[tone] = true
+    // oscList.push(tone)
+    oscActive[tone] = context.createOscillator()
+    let osc = oscActive[tone]
+    // osc.frequency.value = oscList[oscList.length - 1]
+    osc.frequency.value = tone
     muted = false
-    gainNode.connect(context.destination)
+    // gainNode.connect(context.destination)
+    // osc.connect(gainNode)
+    osc.connect(gainNode)
+    osc.start()
+  }
+  else if (tone && oscActive[tone]){
+    oscActive[tone].connect(gainNode)
   }
 }
 
 function stopTone (tone) {
   if (oscActive[tone]) {
-    let idx = oscList.indexOf(tone)
-    delete oscActive[tone]
-    oscList.splice(idx, 1)
-    if (oscList.length === 0) {
-      muted = true
-      gainNode.disconnect(context.destination)
-    }
-    else {
-      gainNode.disconnect(context.destination)
-      osc.frequency.value = oscList[oscList.length - 1]
-      gainNode.connect(context.destination)
-    }
+    oscActive[tone].disconnect(gainNode)
+    // delete oscActive[tone]
+    // let idx = oscList.indexOf(tone)
+    // oscList.splice(idx, 1)
+    // if (oscList.length === 0) {
+    //   muted = true
+    //   gainNode.disconnect(context.destination)
+    //   osc.disconnect(gainNode)
+    // }
+    // else {
+    //   osc.frequency.value = oscList[oscList.length - 1]
+    // }
   }
 }

@@ -62,14 +62,15 @@ function hintButton() {
 function startBoxAction($box) {
   const tone = toneObject[$box.attr('id')]
   playTone(tone)
+
   $box.addClass('lighten-5 clicked');
 }
 
 function endBoxAction($box) {
   const tone = toneObject[$box.attr('id')]
-  
+  stopTone(tone)
+
   $box.removeClass('lighten-5 clicked');
-  stopTone(tone);
 }
 
 function mousedownGUI () {
