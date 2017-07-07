@@ -23,81 +23,59 @@ let toneObject = {
 }
 
 window.AudioContext = window.AudioContext||window.webkitAudioContext
+let monosynth = false
 let context = new AudioContext()
 let gainNode = context.createGain()
-// gainNode.gain.value = 0
 let oscActive = {}
-
-// gainNode.connect(context.destination)
-
-/*************************/
-/* MONOSYNTH CONFIG */
-/*************************/
-
-// let osc = context.createOscillator()
-// let muted = true
-// let oscList = []
-//
-// osc.start()
-//
-// function playTone (tone) {
-//   if (tone && !oscActive[tone]){
-//     oscActive[tone] = true
-//     oscList.push(tone)
-//     osc.frequency.value = oscList[oscList.length - 1]
-//     osc.frequency.value = tone
-//     muted = false
-//     gainNode.connect(context.destination)
-//     osc.connect(gainNode)
-//   }
-// }
-//
-// function stopTone (tone) {
-//   if (oscActive[tone]) {
-//     delete oscActive[tone]
-//     let idx = oscList.indexOf(tone)
-//     oscList.splice(idx, 1)
-//     if (oscList.length === 0) {
-//       muted = true
-//       gainNode.disconnect(context.destination)
-//       osc.disconnect(gainNode)
-//     }
-//     else {
-//       osc.frequency.value = oscList[oscList.length - 1]
-//     }
-//   }
-// }
-
-/* END MONOSYNTH CONFIG */
-
-
-/*************************/
-/* HARMONIC SYNTH CONFIG */
-/*************************/
+let osc = context.createOscillator()
+let muted = true
+let oscList = []
+gainNode.connect(context.destination)
+gainNode.gain.value = 0
+osc.connect(gainNode)
+osc.start()
 
 function playTone (tone) {
   if (tone && !oscActive[tone]){
-    oscActive[tone] = context.createOscillator()
-    let osc = oscActive[tone]
-    osc.frequency.value = tone
-    let oscGainNode = context.createGain()
-    oscGainNode.connect(context.destination)
-    osc.connect(oscGainNode)
-    oscGainNode.gain.value = 1
-    osc.gain = oscGainNode.gain
-    osc.start()
+    if (monosynth){
+      oscActive[tone] = true
+      oscList.push(tone)
+      osc.frequency.value = tone
+      osc.frequency.value = oscList[oscList.length - 1]
+      gainNode.gain.value = 1
+    }
+    else {
+      oscActive[tone] = context.createOscillator()
+      let osc = oscActive[tone]
+      let oscGainNode = context.createGain()
+      oscGainNode.connect(context.destination)
+      osc.gain = oscGainNode.gain
+      osc.frequency.value = tone
+      osc.gain.value = 1
+      osc.connect(oscGainNode)
+      osc.start()
+    }
   }
-  else if (tone && oscActive[tone]){
+  else if (tone && oscActive[tone] && !monosynth){
     oscActive[tone].gain.value = 1
   }
 }
 
-
-
 function stopTone (tone) {
   if (oscActive[tone]) {
-    oscActive[tone].gain.value = 0
+    if (monosynth) {
+      delete oscActive[tone]
+      let idx = oscList.indexOf(tone)
+      oscList.splice(idx, 1)
+      if (oscList.length === 0) {
+        gainNode.gain.value = 0
+      }
+      else {
+        osc.frequency.value = oscList[oscList.length - 1]
+      }
+    }
+    else {
+      oscActive[tone].gain.value = 0
+    }
   }
 }
-
-/* END HARMONIC SYNTH CONFIG */
