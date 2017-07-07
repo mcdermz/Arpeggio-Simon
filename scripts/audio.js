@@ -25,9 +25,10 @@ let toneObject = {
 window.AudioContext = window.AudioContext||window.webkitAudioContext
 let context = new AudioContext()
 let gainNode = context.createGain()
+// gainNode.gain.value = 0
 let oscActive = {}
 
-gainNode.connect(context.destination)
+// gainNode.connect(context.destination)
 
 /*************************/
 /* MONOSYNTH CONFIG */
@@ -79,17 +80,23 @@ function playTone (tone) {
     oscActive[tone] = context.createOscillator()
     let osc = oscActive[tone]
     osc.frequency.value = tone
-    osc.connect(gainNode)
+    let oscGainNode = context.createGain()
+    oscGainNode.connect(context.destination)
+    osc.connect(oscGainNode)
+    oscGainNode.gain.value = 1
+    osc.gain = oscGainNode.gain
     osc.start()
   }
   else if (tone && oscActive[tone]){
-    oscActive[tone].connect(gainNode)
+    oscActive[tone].gain.value = 1
   }
 }
 
+
+
 function stopTone (tone) {
   if (oscActive[tone]) {
-    oscActive[tone].disconnect(gainNode)
+    oscActive[tone].gain.value = 0
   }
 }
 
